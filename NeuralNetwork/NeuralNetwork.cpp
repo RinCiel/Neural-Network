@@ -29,7 +29,7 @@ LayerDense::LayerDense(int inputsIn, int neuronsIn) {
 	//randomly generate a 2d vector of [inputs][neurons] with a range of -1 to 1
 	std::vector<std::vector<double>> weights; // create a 2d vector (all the data of the weights)
 	std::vector<double> aNeuronWeights = {}; // create a neuron with an empty vector
-	std::vector<std::vector<double>> outputs; // batch samples require 3d vectors
+	std::vector<std::vector<double>> output; // batch samples require 3d vectors
 
 	for (int i = 0; i < neurons; i++) { // loop through each neuron in the layer
 		for (int j = 0; j < inputs; j++) { // add values between -1 and 1 for each neuron
@@ -76,7 +76,7 @@ void LayerDense::forward(std::vector<std::vector<double>> vectorInputsIn) {
 		aResult = {};
 	}
 	// move our results into output
-	outputs = results;
+	output = results;
 }
 
 void LayerDense::displayWeights() {
@@ -113,12 +113,12 @@ void LayerDense::displayBiases() {
 void LayerDense::displayOutputs() {
 	std::cout << "====================================" << std::endl;
 	std::cout << "Outputs" << std::endl;
-	for (int i = 0; i < outputs.size(); i++)
+	for (int i = 0; i < output.size(); i++)
 	{
 		std::cout << "[";
 		for (int j = 0; j < neurons; j++)
 		{
-			std::cout << outputs[i][j];
+			std::cout << output[i][j];
 			if (j + 1 != neurons) {
 				std::cout << ", ";
 			}
@@ -135,11 +135,11 @@ Used after passing values through layers to get non-linear data
 
 // change the results to 0 if the results in the vector is negative
 void ActivationReLU::forward(std::vector<std::vector<double>> inputsIn) {
-	outputs = inputsIn;
-	for (int i = 0; i < outputs.size(); i++) {
-		for (int j = 0; j < outputs[i].size(); j++) {
-			if (outputs[i][j] < 0) {
-				outputs[i][j] = 0;
+	output = inputsIn;
+	for (int i = 0; i < output.size(); i++) {
+		for (int j = 0; j < output[i].size(); j++) {
+			if (output[i][j] < 0) {
+				output[i][j] = 0;
 			}
 		}
 	}
@@ -148,13 +148,13 @@ void ActivationReLU::forward(std::vector<std::vector<double>> inputsIn) {
 void ActivationReLU::displayOutputs() {
 	std::cout << "====================================" << std::endl;
 	std::cout << "Outputs" << std::endl;
-	for (int i = 0; i < outputs.size(); i++)
+	for (int i = 0; i < output.size(); i++)
 	{
 		std::cout << "[";
-		for (int j = 0; j < outputs[i].size(); j++)
+		for (int j = 0; j < output[i].size(); j++)
 		{
-			std::cout << outputs[i][j];
-			if (j + 1 != outputs[i].size()) {
+			std::cout << output[i][j];
+			if (j + 1 != output[i].size()) {
 				std::cout << ", ";
 			}
 		}
@@ -170,26 +170,26 @@ Usually used in the last layer so that the values in the layer are normalized (i
 */
 
 void ActivationSoftmax::forward(std::vector<std::vector<double>> inputsIn) {
-	outputs = inputsIn;
+	output = inputsIn;
 	double max;
 	std::vector<double> row; // a row of outputs after softmax activation
 	std::vector<std::vector<double>> beforeNormalization;
-	for (int i = 0; i < outputs.size(); i++) {
-		max = getArgMax(outputs[i]);
-		for (int j = 0; j < outputs[i].size(); j++) {
-			row.push_back(exp(outputs[i][j] - max)); // exponentiate values after subtracting the value from the max (prevents overflow)
+	for (int i = 0; i < output.size(); i++) {
+		max = getArgMax(output[i]);
+		for (int j = 0; j < output[i].size(); j++) {
+			row.push_back(exp(output[i][j] - max)); // exponentiate values after subtracting the value from the max (prevents overflow)
 		}
 		beforeNormalization.push_back(row);
 		row = {};
 	}
-	outputs = beforeNormalization;
+	output = beforeNormalization;
 
 	// Normalize values by calculating average
 	double sum;
-	for (int i = 0; i < outputs.size(); i++) {
-		sum = getSum(outputs[i]);
-		for (int j = 0; j < outputs[i].size(); j++) {
-			outputs[i][j] = outputs[i][j] / sum;
+	for (int i = 0; i < output.size(); i++) {
+		sum = getSum(output[i]);
+		for (int j = 0; j < output[i].size(); j++) {
+			output[i][j] = output[i][j] / sum;
 		}
 	}
 }
@@ -197,19 +197,58 @@ void ActivationSoftmax::forward(std::vector<std::vector<double>> inputsIn) {
 void ActivationSoftmax::displayOutputs() {
 	std::cout << "====================================" << std::endl;
 	std::cout << "Outputs" << std::endl;
-	for (int i = 0; i < outputs.size(); i++)
+	for (int i = 0; i < output.size(); i++)
 	{
 		std::cout << "[";
-		for (int j = 0; j < outputs[i].size(); j++)
+		for (int j = 0; j < output[i].size(); j++)
 		{
-			std::cout << outputs[i][j];
-			if (j + 1 != outputs[i].size()) {
+			std::cout << output[i][j];
+			if (j + 1 != output[i].size()) {
 				std::cout << ", ";
 			}
 		}
 		std::cout << "]";
 		std::cout << std::endl;
 	}
+}
+// ========================================================================================================================
+/*
+Categorical Cross Entropy Loss function
+takes the negative log of the target output
+negative log from 0 to 1 is between inf to 0
+
+Used after the inputs have been passed through so it can calulate how confident the result is
+The greater the loss, the less confident
+*/
+void LossCategoricalCrossEntropy::forward(std::vector<std::vector<double>> inputs, std::vector<double> targets) {
+	std::vector<double> allLoss;
+	std::vector<double> current;
+	for (int i = 0; i < inputs.size(); i++) {
+		current = clip(1e-7, 1 - 1e-7, inputs[i]);
+		// removes 0 from negative log and 1 to make it fairer
+
+		// for each sample, get the negative log of the target confidence
+		allLoss.push_back(-1 * log(current[targets[i]]));
+		std::cout << current[targets[i]] << std::endl;
+	}
+	output = getSum(allLoss) / allLoss.size();
+}
+
+// overload the forward function to account for 2d vectors
+void LossCategoricalCrossEntropy::forward(std::vector<std::vector<double>> inputs, std::vector<std::vector<double>> targets) {
+	std::vector<double> current;
+	std::vector<double> allLoss;
+	for (int i = 0; i < inputs.size(); i++) {
+		current = clip(1e-7, 1 - 1e-7, inputs[i]);
+		for (int j = 0; j < current.size(); j++) {
+			// multiply current value with target value
+			current[j] = current[j] * targets[i][j];
+		}
+		// since most of it is multiplied by 0, the sum is the target confidence
+		allLoss.push_back(-1 * log(getSum(current)));
+		current = {};
+ 	}
+	output = getSum(allLoss) / allLoss.size();
 }
 
 // ========================================================================================================================
@@ -233,4 +272,16 @@ double getSum(std::vector<double> vec) {
 		res += vec[i];
 	}
 	return res;
+}
+
+std::vector<double> clip(double min, double max, std::vector<double> vec) {
+	for (int i = 0; i < vec.size(); i++) {
+		if (vec[i] < min) {
+			vec[i] = min;
+		}
+		else if (vec[i] > max) {
+			vec[i] = max;
+		}
+	}
+	return vec;
 }
