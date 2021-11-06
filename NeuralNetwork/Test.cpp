@@ -7,16 +7,12 @@ void test() {
 	// create input variables
 	// using doubles as they are more precise than floats
 	std::vector<std::vector<double>> inputs = {
-		{0.7, 0.1, 0.2},
-		{0.1, 0.5, 0.4},
+		{0.7, 0.2, 0.1},
+		{0.5, 0.1, 0.4},
 		{0.02, 0.9, 0.08}
 	};
 
-	std::vector<std::vector<double>> targetOutput = {
-		{1, 0, 0},
-		{0, 1, 0},
-		{0, 1, 0}
-	};
+	std::vector<double> targetOutput = { 0, 1, 1 };
 
 	LayerDense layer(3, 5);
 	ActivationReLU relu;
@@ -34,7 +30,9 @@ void test() {
 
 	LossCategoricalCrossEntropy loss;
 	loss.forward(softmax.output, targetOutput);
-	std::cout << "Loss: " << loss.output;
+	Accuracy accuracy;
+	accuracy.forward(softmax.output, targetOutput);
+	std::cout << "Loss: " << loss.output << std::endl << "Accuracy: " << accuracy.output;
 }
 
 int main() {

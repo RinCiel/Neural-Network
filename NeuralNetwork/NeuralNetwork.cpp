@@ -175,7 +175,7 @@ void ActivationSoftmax::forward(std::vector<std::vector<double>> inputsIn) {
 	std::vector<double> row; // a row of outputs after softmax activation
 	std::vector<std::vector<double>> beforeNormalization;
 	for (int i = 0; i < output.size(); i++) {
-		max = getArgMax(output[i]);
+		max = getMax(output[i]);
 		for (int j = 0; j < output[i].size(); j++) {
 			row.push_back(exp(output[i][j] - max)); // exponentiate values after subtracting the value from the max (prevents overflow)
 		}
@@ -217,8 +217,13 @@ Categorical Cross Entropy Loss function
 takes the negative log of the target output
 negative log from 0 to 1 is between inf to 0
 
-Used after the inputs have been passed through so it can calulate how confident the result is
+Used after the inputs have been passed through (after softmax) so it can calulate how confident the result is
 The greater the loss, the less confident
+*/
+
+/*
+inputs = data after passing through softmax
+targets = specified targets
 */
 void LossCategoricalCrossEntropy::forward(std::vector<std::vector<double>> inputs, std::vector<double> targets) {
 	std::vector<double> allLoss;
@@ -229,7 +234,6 @@ void LossCategoricalCrossEntropy::forward(std::vector<std::vector<double>> input
 
 		// for each sample, get the negative log of the target confidence
 		allLoss.push_back(-1 * log(current[targets[i]]));
-		std::cout << current[targets[i]] << std::endl;
 	}
 	output = getSum(allLoss) / allLoss.size();
 }
@@ -252,10 +256,58 @@ void LossCategoricalCrossEntropy::forward(std::vector<std::vector<double>> input
 }
 
 // ========================================================================================================================
+/*
+Accuracy
+Check the target outputs with the confidence
+If the confidence is the max in target outputs
+Used after softmax activation (after data has been passed)
+*/
+
+/*
+inputs = data after passing through softmax
+targets = specified targets
+inputs size should equal targets size
+*/
+void Accuracy::forward(std::vector<std::vector<double>> inputs, std::vector<double> targets) {
+	double res = 0;
+	int maxIndex;
+	for (int i = 0; i < inputs.size(); i++) {
+		maxIndex = 0;
+		for (int j = 0; j < inputs[i].size(); j++) {
+			if (inputs[i][j] > inputs[i][maxIndex]) {
+				maxIndex = j;
+			}
+		}
+		if (double(maxIndex) == targets[i]) {
+			res++;
+		}
+	}
+	output = res / targets.size();
+}
+
+// overloaded forward function for a 2d targets vector
+void Accuracy::forward(std::vector<std::vector<double>> inputs, std::vector<std::vector<double>> targets) {
+	double res = 0;
+	int maxInputsIndex = 0;
+	int maxTargetsIndex;
+	for (int i = 0; i < inputs.size(); i++) {
+		for (int j = 0; j < inputs[i].size(); j++) {
+			if (inputs[i][j] > inputs[i][maxInputsIndex]) {
+				maxInputsIndex = j;
+			}
+		}
+		maxTargetsIndex = getArgMax(targets[i]);
+		if (maxInputsIndex == maxTargetsIndex) {
+			res++;
+		}
+	}
+	output = res / targets.size();
+}
+// ========================================================================================================================
 // Helper functions
 
 // get largest value in the vector
-double getArgMax(std::vector<double> vec) {
+double getMax(std::vector<double> vec) {
 	double res = vec[0];
 	for (int i = 0; i < vec.size(); i++) {
 		if (vec[i] > res) {
@@ -263,6 +315,16 @@ double getArgMax(std::vector<double> vec) {
 		}
 	}
 	return res;
+}
+
+int getArgMax(std::vector<double> vec) {
+	int index = 0;
+	for (int i = 0; i < vec.size(); i++) {
+		if (vec[i] > vec[index]) {
+			index = i;
+		}
+	}
+	return index;
 }
 
 // get the sum of the elements in the vector

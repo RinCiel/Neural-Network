@@ -4,6 +4,9 @@
 #include <random>
 #include <time.h>
 
+// Disable visual studio error C4244
+#pragma warning(disable : 4244)
+
 void NeuralNetworkInit();
 
 class LayerDense {
@@ -43,13 +46,21 @@ public:
 
 class LossCategoricalCrossEntropy {
 public:
-	std::vector<double> targetOutputs;
 	double output;
 
 	void forward(std::vector<std::vector<double>> inputs, std::vector<double> targets);
 	void forward(std::vector<std::vector<double>> inputs, std::vector<std::vector<double>> targets);
 };
 
-double getArgMax(std::vector<double> vec);
+class Accuracy {
+public:
+	double output;
+
+	void forward(std::vector<std::vector<double>> inputs, std::vector<double> targets);
+	void forward(std::vector<std::vector<double>> inputs, std::vector<std::vector<double>> targets);
+};
+
+double getMax(std::vector<double> vec);
+int getArgMax(std::vector<double> vec);
 double getSum(std::vector<double> vec);
 std::vector<double> clip(double min, double max, std::vector<double> vec);
