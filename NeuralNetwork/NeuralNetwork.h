@@ -13,7 +13,7 @@ public:
 	int neurons;
 	std::vector<std::vector<double>> layerWeights;
 	std::vector<double> layerBiases;
-	std::vector<std::vector<double>> outputs;
+	std::vector<std::vector<double>> output;
 
 	LayerDense(int inputs, int neurons);
 	void forward(std::vector<std::vector<double>> vectorInputsIn);
@@ -25,7 +25,7 @@ public:
 
 class ActivationReLU {
 public:
-	std::vector<std::vector<double>> outputs;
+	std::vector<std::vector<double>> output;
 
 	void forward(std::vector<std::vector<double>> inputsIn);
 
@@ -34,12 +34,22 @@ public:
 
 class ActivationSoftmax {
 public:
-	std::vector<std::vector<double>> outputs;
+	std::vector<std::vector<double>> output;
 
 	void forward(std::vector<std::vector<double>> inputsIn);
 
 	void displayOutputs();
 };
 
+class LossCategoricalCrossEntropy {
+public:
+	std::vector<double> targetOutputs;
+	double output;
+
+	void forward(std::vector<std::vector<double>> inputs, std::vector<double> targets);
+	void forward(std::vector<std::vector<double>> inputs, std::vector<std::vector<double>> targets);
+};
+
 double getArgMax(std::vector<double> vec);
 double getSum(std::vector<double> vec);
+std::vector<double> clip(double min, double max, std::vector<double> vec);
