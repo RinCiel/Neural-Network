@@ -138,9 +138,7 @@ void ActivationReLU::forward(std::vector<std::vector<double>> inputsIn) {
 	output = inputsIn;
 	for (int i = 0; i < output.size(); i++) {
 		for (int j = 0; j < output[i].size(); j++) {
-			if (output[i][j] < 0) {
-				output[i][j] = 0;
-			}
+			output[i][j] = max(0, output[i][j]);
 		}
 	}
 }
