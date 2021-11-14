@@ -14,6 +14,7 @@ void NeuralNetworkInit() {
 }
 
 // ========================================================================================================================
+
 // LayerDense class
 // makes a neuron layer with inputs and any number of neurons
 LayerDense::LayerDense(int inputsIn, int neuronsIn) {
@@ -80,6 +81,7 @@ void LayerDense::forward(std::vector<std::vector<double>> vectorInputsIn) {
 }
 
 // ========================================================================================================================
+
 /*
 ReLU activation function
 Used after passing values through layers to get non-linear data
@@ -96,6 +98,7 @@ void ActivationReLU::forward(std::vector<std::vector<double>> inputsIn) {
 }
 
 // ========================================================================================================================
+
 /*
 Softmax activation function
 Usually used in the last layer so that the values in the layer are normalized (is between 0 and 1)
@@ -127,6 +130,7 @@ void ActivationSoftmax::forward(std::vector<std::vector<double>> inputsIn) {
 }
 
 // ========================================================================================================================
+
 /*
 Categorical Cross Entropy Loss function
 takes the negative log of the target output
@@ -171,6 +175,7 @@ void LossCategoricalCrossEntropy::forward(std::vector<std::vector<double>> input
 }
 
 // ========================================================================================================================
+
 /*
 Accuracy
 Check the target outputs with the confidence
@@ -219,6 +224,7 @@ void Accuracy::forward(std::vector<std::vector<double>> inputs, std::vector<std:
 	output = res / targets.size();
 }
 // ========================================================================================================================
+
 // Helper functions
 
 // get largest value in the vector
