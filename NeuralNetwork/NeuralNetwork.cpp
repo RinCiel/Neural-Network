@@ -79,54 +79,6 @@ void LayerDense::forward(std::vector<std::vector<double>> vectorInputsIn) {
 	output = results;
 }
 
-void LayerDense::displayWeights() {
-	std::cout << "====================================" << std::endl;
-	std::cout << "Weights" << std::endl;
-	for (int i = 0; i < neurons; i++)
-	{
-		std::cout << "[";
-		for (int j = 0; j < inputs; j++)
-		{
-			std::cout << layerWeights[i][j];
-			if (j + 1 != inputs) {
-				std::cout << ", ";
-			}
-		}
-		std::cout << "]";
-		std::cout << std::endl;
-	}
-}
-
-void LayerDense::displayBiases() {
-	std::cout << "====================================" << std::endl;
-	std::cout << "Biases" << std::endl;
-	std::cout << "[";
-	for (int i = 0; i < layerBiases.size(); i++) {
-		std::cout << layerBiases[i];
-		if (i + 1 != layerBiases.size()) {
-			std::cout << ", ";
-		}
-	}
-	std::cout << "]" << std::endl;
-}
-
-void LayerDense::displayOutputs() {
-	std::cout << "====================================" << std::endl;
-	std::cout << "Outputs" << std::endl;
-	for (int i = 0; i < output.size(); i++)
-	{
-		std::cout << "[";
-		for (int j = 0; j < neurons; j++)
-		{
-			std::cout << output[i][j];
-			if (j + 1 != neurons) {
-				std::cout << ", ";
-			}
-		}
-		std::cout << "]";
-		std::cout << std::endl;
-	}
-}
 // ========================================================================================================================
 /*
 ReLU activation function
@@ -140,24 +92,6 @@ void ActivationReLU::forward(std::vector<std::vector<double>> inputsIn) {
 		for (int j = 0; j < output[i].size(); j++) {
 			output[i][j] = max(0, output[i][j]);
 		}
-	}
-}
-
-void ActivationReLU::displayOutputs() {
-	std::cout << "====================================" << std::endl;
-	std::cout << "Outputs" << std::endl;
-	for (int i = 0; i < output.size(); i++)
-	{
-		std::cout << "[";
-		for (int j = 0; j < output[i].size(); j++)
-		{
-			std::cout << output[i][j];
-			if (j + 1 != output[i].size()) {
-				std::cout << ", ";
-			}
-		}
-		std::cout << "]";
-		std::cout << std::endl;
 	}
 }
 
@@ -192,23 +126,6 @@ void ActivationSoftmax::forward(std::vector<std::vector<double>> inputsIn) {
 	}
 }
 
-void ActivationSoftmax::displayOutputs() {
-	std::cout << "====================================" << std::endl;
-	std::cout << "Outputs" << std::endl;
-	for (int i = 0; i < output.size(); i++)
-	{
-		std::cout << "[";
-		for (int j = 0; j < output[i].size(); j++)
-		{
-			std::cout << output[i][j];
-			if (j + 1 != output[i].size()) {
-				std::cout << ", ";
-			}
-		}
-		std::cout << "]";
-		std::cout << std::endl;
-	}
-}
 // ========================================================================================================================
 /*
 Categorical Cross Entropy Loss function
