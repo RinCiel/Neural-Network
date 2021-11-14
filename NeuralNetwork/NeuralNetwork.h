@@ -20,10 +20,6 @@ public:
 
 	LayerDense(int inputs, int neurons);
 	void forward(std::vector<std::vector<double>> vectorInputsIn);
-
-	void displayWeights();
-	void displayBiases();
-	void displayOutputs();
 };
 
 class ActivationReLU {
@@ -31,8 +27,6 @@ public:
 	std::vector<std::vector<double>> output;
 
 	void forward(std::vector<std::vector<double>> inputsIn);
-
-	void displayOutputs();
 };
 
 class ActivationSoftmax {
@@ -40,8 +34,6 @@ public:
 	std::vector<std::vector<double>> output;
 
 	void forward(std::vector<std::vector<double>> inputsIn);
-
-	void displayOutputs();
 };
 
 class LossCategoricalCrossEntropy {
