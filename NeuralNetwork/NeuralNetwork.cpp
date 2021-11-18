@@ -133,8 +133,8 @@ void ActivationSoftmax::forward(std::vector<std::vector<double>> inputsIn) {
 
 /*
 Categorical Cross Entropy Loss function
-takes the negative log of the target output
-negative log from 0 to 1 is between inf to 0
+takes the negative log of the predicted value of the target output
+The closer the output is to 1, the closer it is to 0
 
 Used after the inputs have been passed through (after softmax) so it can calulate how confident the result is
 The greater the loss, the less confident
