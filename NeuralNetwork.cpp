@@ -55,9 +55,15 @@ void Activation_Softmax::forward(std::vector<std::vector<double>> inputs) {
 	// apply softmax activation function
 	output = inputs;
 	for (int i = 0; i < output.size(); i++) {
+		double max = getMax(output[i]);
+		for (int j = 0; j < output[i].size(); j++) {
+			output[i][j] = exp(output[i][j] - max);
+		}
+
+		// normalize
 		double sum = getSum(output[i]);
 		for (int j = 0; j < output[i].size(); j++) {
-			output[i][j] = exp(output[i][j]) / sum;
+			output[i][j] /= sum;
 		}
 	}
 }

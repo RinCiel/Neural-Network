@@ -29,6 +29,7 @@ int main() {
 	loss.forward(softmax.output, targetOutput);
 	Accuracy accuracy;
 	accuracy.forward(softmax.output, targetOutput);
+
 	std::cout << "Loss: " << loss.output << std::endl << "Accuracy: " << accuracy.output;
     return 0;
 }
