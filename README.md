@@ -1,3 +1,3 @@
 # Neural Network
-Based on Neural Network from Scratch in Python by Harrison Kinsley <br>
+Based on Neural Networks from Scratch in Python by Harrison Kinsley <br>
 WIP
