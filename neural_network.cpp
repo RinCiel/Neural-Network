@@ -4,7 +4,7 @@ Based on Neural Networks from Scratch in Python by Harrison Kinsley
 
 Call NeuralNetworkInit() first
 */
-#include "NeuralNetwork.h"
+#include "neural_network.h"
 
 void NeuralNetworkInit() {
 	// set random seed
@@ -211,4 +211,13 @@ void Activation_Softmax_Loss_CategoricalCrossEntropy::backward(std::vector<std::
 
 	// normalize
 	dInputs = divide(dInputs, samples);
+}
+
+Optimizer_SGD::Optimizer_SGD(double learning_rate) {
+	this->learning_rate = learning_rate;
+}
+
+void Optimizer_SGD::update(LayerDense* layer) {
+	layer->weights = add(layer->weights, multiply(layer->weights, -1 * learning_rate));
+	layer->biases = add(layer->biases, multiply(layer->biases, -1 * learning_rate));
 }

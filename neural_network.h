@@ -4,7 +4,7 @@
 #include <random>
 #include <time.h>
 #include <algorithm>
-#include "utils.h"
+#include "vector_utils.h"
 
 void NeuralNetworkInit();
 
@@ -71,4 +71,12 @@ class Activation_Softmax_Loss_CategoricalCrossEntropy {
         void backward(std::vector<std::vector<double>> inputs, std::vector<double> targets);
         void backward(std::vector<std::vector<double>> inputs, std::vector<std::vector<double>> targets);
         std::vector<std::vector<double>> dInputs;
+};
+
+class Optimizer_SGD {
+    public:
+        Optimizer_SGD(double learning_rate=1.0);
+        double learning_rate;
+
+        void update(LayerDense* layer);
 };

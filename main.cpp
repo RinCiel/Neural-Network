@@ -1,7 +1,8 @@
-#include "NeuralNetwork.h"
+#include "neural_network.h"
 
 // print hello world
 int main() {
+
     NeuralNetworkInit();
     std::vector<std::vector<double>> inputs = {
 		{0.7, 0.2, 0.1},
@@ -43,6 +44,11 @@ int main() {
 	print(layer.dWeights);
 	std::cout << std::endl;
 	print(layer.dBiases);
-	
+
+	// optimizer
+	Optimizer_SGD optimizer;
+	optimizer.update(&layer);
+	optimizer.update(&layer2);
+	optimizer.update(&layer3);
     return 0;
 }

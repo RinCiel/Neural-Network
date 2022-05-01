@@ -1,4 +1,4 @@
-#include "utils.h"
+#include "vector_utils.h"
 
 // get largest value in the vector
 double getMax(std::vector<double> vec) {
@@ -21,6 +21,26 @@ int getArgMax(std::vector<double> vec) {
 	return index;
 }
 
+// add 2 1d vectors
+std::vector<double> add(std::vector<double> v1, std::vector<double> v2) {
+	std::vector<double> res(v1.size());
+	for (int i = 0; i < v1.size(); i++) {
+		res[i] = v1[i] + v2[i];
+	}
+	return res;
+}
+
+// add 2 2d vectors
+std::vector<std::vector<double>> add(std::vector<std::vector<double>> v1, std::vector<std::vector<double>> v2) {
+	std::vector<std::vector<double>> res(v1.size(), std::vector<double>(v1[0].size(), 0));
+	for (int i = 0; i < v1.size(); i++) {
+		for (int j = 0; j < v1[0].size(); j++) {
+			res[i][j] = v1[i][j] + v2[i][j];
+		}
+	}
+	return res;
+}
+
 // subtract 2 2d vectors
 std::vector<std::vector<double>> subtract(std::vector<std::vector<double>> v1, std::vector<std::vector<double>> v2) {
 	std::vector<std::vector<double>> res(v1.size(), std::vector<double>(v1[0].size(), 0));
@@ -37,6 +57,15 @@ double getSum(std::vector<double> vec) {
 	double res = 0;
 	for (int i = 0; i < vec.size(); i++) {
 		res += vec[i];
+	}
+	return res;
+}
+
+// multiply a 1d vector by a double
+std::vector<double> multiply(std::vector<double> vec, double val) {
+	std::vector<double> res(vec.size());
+	for (int i = 0; i < vec.size(); i++) {
+		res[i] = vec[i] * val;
 	}
 	return res;
 }

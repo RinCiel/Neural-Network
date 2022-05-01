@@ -6,8 +6,12 @@ double getMax(std::vector<double> vec);
 int getArgMax(std::vector<double> vec);
 double getSum(std::vector<double> vec);
 
+std::vector<std::vector<double>> add(std::vector<std::vector<double>> v1, std::vector<std::vector<double>> v2);
+std::vector<double> add(std::vector<double> v1, std::vector<double> v2);
+
 std::vector<std::vector<double>> subtract(std::vector<std::vector<double>> v1, std::vector<std::vector<double>> v2);
 
+std::vector<double> multiply(std::vector<double> vec, double val);
 std::vector<std::vector<double>> multiply(std::vector<std::vector<double>> vec, double val);
 std::vector<std::vector<double>> multiply(std::vector<std::vector<double>> vec, std::vector<double> val);
 std::vector<std::vector<double>> multiply(std::vector<std::vector<double>> v1, std::vector<std::vector<double>> v2);
