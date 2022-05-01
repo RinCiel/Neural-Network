@@ -15,19 +15,31 @@ class LayerDense {
         std::vector<double> biases;
 
         void forward(std::vector<std::vector<double>> inputs);
+        std::vector<std::vector<double>> input;
         std::vector<std::vector<double>> output;
+
+        void backward(std::vector<std::vector<double>> inputs);
+        std::vector<std::vector<double>> dWeights;
+        std::vector<double> dBiases;
+        std::vector<std::vector<double>> dInputs;
 };
 
 class Activation_ReLU {
     public:
         void forward(std::vector<std::vector<double>> inputs);
         std::vector<std::vector<double>> output;
+
+        void backward(std::vector<std::vector<double>> inputs);
+        std::vector<std::vector<double>> dInputs;
 };
 
 class Activation_Softmax {
     public:
         void forward(std::vector<std::vector<double>> inputs);
         std::vector<std::vector<double>> output;
+
+        void backward(std::vector<std::vector<double>> inputs);
+        std::vector<std::vector<double>> dInputs;
 };
 
 class Loss_CategoricalCrossEntropy {
@@ -35,6 +47,10 @@ class Loss_CategoricalCrossEntropy {
         void forward(std::vector<std::vector<double>> inputs, std::vector<double> targets);
         void forward(std::vector<std::vector<double>> inputs, std::vector<std::vector<double>> targets);
         double output;
+
+        void backward(std::vector<std::vector<double>> inputs, std::vector<double> targets);
+        void backward(std::vector<std::vector<double>> inputs, std::vector<std::vector<double>> targets);
+        std::vector<std::vector<double>> dInputs;
 };
 
 class Accuracy {
@@ -42,4 +58,17 @@ class Accuracy {
         void forward(std::vector<std::vector<double>> inputs, std::vector<double> targets);
         void forward(std::vector<std::vector<double>> inputs, std::vector<std::vector<double>> targets);
         double output;
+};
+
+class Activation_Softmax_Loss_CategoricalCrossEntropy {
+    public:
+        Activation_Softmax_Loss_CategoricalCrossEntropy();
+        void forward(std::vector<std::vector<double>> inputs, std::vector<double> targets);
+        Activation_Softmax* softmax;
+        Loss_CategoricalCrossEntropy* loss;
+        std::vector<std::vector<double>> output;
+
+        void backward(std::vector<std::vector<double>> inputs, std::vector<double> targets);
+        void backward(std::vector<std::vector<double>> inputs, std::vector<std::vector<double>> targets);
+        std::vector<std::vector<double>> dInputs;
 };

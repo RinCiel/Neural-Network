@@ -30,6 +30,7 @@ LayerDense::LayerDense(int inputs, int neurons) {
 }
 
 void LayerDense::forward(std::vector<std::vector<double>> inputs) {
+	input = inputs;
 	// multiply inputs with weights
 	output = dot(inputs, weights);
 
@@ -41,12 +42,31 @@ void LayerDense::forward(std::vector<std::vector<double>> inputs) {
 	}
 }
 
+// inputs - derivative
+void LayerDense::backward(std::vector<std::vector<double>> inputs) {
+	dWeights = dot(transpose(input), inputs);
+	dBiases = sumVertical(inputs);
+	dInputs = dot(inputs, transpose(weights));
+}
+
 void Activation_ReLU::forward(std::vector<std::vector<double>> inputs) {
 	// apply ReLU activation function
 	output = inputs;
 	for (int i = 0; i < output.size(); i++) {
 		for (int j = 0; j < output[i].size(); j++) {
 			output[i][j] = std::max(0.0, output[i][j]);
+		}
+	}
+}
+
+void Activation_ReLU::backward(std::vector<std::vector<double>> inputs) {
+	// derivative of ReLU activation function
+	dInputs = inputs;
+	for (int i = 0; i < dInputs.size(); i++) {
+		for (int j = 0; j < dInputs[i].size(); j++) {
+			if (output[i][j] <= 0) {
+				dInputs[i][j] = 0;
+			}
 		}
 	}
 }
@@ -65,6 +85,23 @@ void Activation_Softmax::forward(std::vector<std::vector<double>> inputs) {
 		for (int j = 0; j < output[i].size(); j++) {
 			output[i][j] /= sum;
 		}
+	}
+}
+
+void Activation_Softmax::backward(std::vector<std::vector<double>> inputs) {
+	// fill dInput with 0 the size of inputs
+	dInputs = inputs;
+	for (int i = 0; i < dInputs.size(); i++) {
+		for (int j = 0; j < dInputs[i].size(); j++) {
+			dInputs[i][j] = 0;
+		}
+	}
+
+	for (int i = 0; i < output.size(); i++) {
+		std::vector<std::vector<double>> single_output = transpose(output[i]);
+		// calculate jacobian matrix
+		std::vector<std::vector<double>> jacobian = subtract(diagflat(single_output), dot(single_output, transpose(single_output)));
+		dInputs[i] = dot(jacobian, inputs[i]);
 	}
 }
 
@@ -93,6 +130,34 @@ void Loss_CategoricalCrossEntropy::forward(std::vector<std::vector<double>> inpu
 	output = getSum(allLoss) / allLoss.size();
 };
 
+void Loss_CategoricalCrossEntropy::backward(std::vector<std::vector<double>> inputs, std::vector<double> targets) {
+	int samples = inputs.size();
+	int labels = inputs[0].size();
+
+	// change targets to one-hot encoding
+	std::vector<std::vector<double>> targets_one_hot;
+	for (int i = 0; i < samples; i++) {
+		std::vector<double> row;
+		for (int j = 0; j < labels; j++) {
+			if (j == targets[i]) {
+				row.push_back(1);
+			}
+			else {
+				row.push_back(0);
+			}
+		}
+		targets_one_hot.push_back(row);
+	}
+
+	this->backward(inputs, targets_one_hot);
+}
+
+void Loss_CategoricalCrossEntropy::backward(std::vector<std::vector<double>> inputs, std::vector<std::vector<double>> targets) {
+	int samples = inputs.size();
+	dInputs = divide(multiply(targets, -1), inputs);
+	dInputs = divide(dInputs, samples);
+}
+
 // checks the target outputs with confidence
 // if the highest confidence equals target output index, then it is accurate
 void Accuracy::forward(std::vector<std::vector<double>> inputs, std::vector<double> targets) {
@@ -113,4 +178,37 @@ void Accuracy::forward(std::vector<std::vector<double>> inputs, std::vector<std:
 		}
 	}
 	output = res / targets.size();
+}
+
+Activation_Softmax_Loss_CategoricalCrossEntropy::Activation_Softmax_Loss_CategoricalCrossEntropy() {
+	softmax = new Activation_Softmax();
+	loss = new Loss_CategoricalCrossEntropy();
+}
+
+void Activation_Softmax_Loss_CategoricalCrossEntropy::forward(std::vector<std::vector<double>> inputs, std::vector<double> targets) {
+	softmax->forward(inputs);
+	loss->forward(softmax->output, targets);
+	output = softmax->output;
+}
+
+void Activation_Softmax_Loss_CategoricalCrossEntropy::backward(std::vector<std::vector<double>> inputs, std::vector<double> targets) {
+	int samples = inputs.size();
+	dInputs = inputs;
+	for (int i = 0; i < samples; i++) {
+		dInputs[i][targets[i]] -= 1;
+	}
+
+	// normalize
+	dInputs = divide(dInputs, samples);
+}
+
+void Activation_Softmax_Loss_CategoricalCrossEntropy::backward(std::vector<std::vector<double>> inputs, std::vector<std::vector<double>> targets) {
+	int samples = inputs.size();
+	dInputs = inputs;
+	for (int i = 0; i < samples; i++) {
+		dInputs[i][getArgMax(targets[i])] -= 1;
+	}
+
+	// normalize
+	dInputs = divide(dInputs, samples);
 }

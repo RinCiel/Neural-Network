@@ -16,20 +16,33 @@ int main() {
 	LayerDense layer2(5, 5);
 	Activation_ReLU relu2;
 	LayerDense layer3(5, 5);
-	Activation_Softmax softmax;
+	Activation_Softmax_Loss_CategoricalCrossEntropy activation_loss;
 
 	layer.forward(inputs);
 	relu.forward(layer.output);
 	layer2.forward(relu.output);
 	relu2.forward(layer2.output);
 	layer3.forward(relu2.output);
-	softmax.forward(layer3.output);
+	activation_loss.forward(layer3.output, targetOutput);
 
-	Loss_CategoricalCrossEntropy loss;
-	loss.forward(softmax.output, targetOutput);
 	Accuracy accuracy;
-	accuracy.forward(softmax.output, targetOutput);
+	accuracy.forward(activation_loss.softmax->output, targetOutput);
 
-	std::cout << "Loss: " << loss.output << std::endl << "Accuracy: " << accuracy.output;
+	std::cout << "Loss: " << activation_loss.loss->output << std::endl << "Accuracy: " << accuracy.output;
+
+	// backpropagation
+	activation_loss.backward(activation_loss.output, targetOutput);
+	layer3.backward(activation_loss.dInputs);
+	relu2.backward(layer3.dInputs);
+	layer2.backward(relu2.dInputs);
+	relu.backward(layer2.dInputs);
+	layer.backward(relu.dInputs);
+
+	// print out contents of layer dWeights
+	std::cout << std::endl;
+	print(layer.dWeights);
+	std::cout << std::endl;
+	print(layer.dBiases);
+	
     return 0;
 }
