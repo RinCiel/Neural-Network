@@ -11,7 +11,7 @@ void NeuralNetworkInit() {
 	srand(time(NULL));
 }
 
-LayerDense::LayerDense(int inputs, int neurons) {
+Layer_Dense::Layer_Dense(int inputs, int neurons) {
 	// fill weights with random numbers between -1 and 1 
 	// weights size: (inputs, neurons)
 	for (int i = 0; i < inputs; i++) {
@@ -29,8 +29,17 @@ LayerDense::LayerDense(int inputs, int neurons) {
 	}
 }
 
-void LayerDense::forward(std::vector<std::vector<double>> inputs) {
+void Layer_Dense::forward(std::vector<std::vector<double>> inputs, bool normalize) {
 	input = inputs;
+	if (normalize) {
+		// normalize inputs
+		for (int i = 0; i < input.size(); i++) {
+			double sum = getSum(input[i]);
+			for (int j = 0; j < input[i].size(); j++) {
+				input[i][j] /= sum;
+			}
+		}
+	}
 	// multiply inputs with weights
 	output = dot(inputs, weights);
 
@@ -43,7 +52,7 @@ void LayerDense::forward(std::vector<std::vector<double>> inputs) {
 }
 
 // inputs - derivative
-void LayerDense::backward(std::vector<std::vector<double>> inputs) {
+void Layer_Dense::backward(std::vector<std::vector<double>> inputs) {
 	dWeights = dot(transpose(input), inputs);
 	dBiases = sumVertical(inputs);
 	dInputs = dot(inputs, transpose(weights));
@@ -217,7 +226,7 @@ Optimizer_SGD::Optimizer_SGD(double learning_rate) {
 	this->learning_rate = learning_rate;
 }
 
-void Optimizer_SGD::update(LayerDense* layer) {
+void Optimizer_SGD::update(Layer_Dense* layer) {
 	layer->weights = add(layer->weights, multiply(layer->weights, -1 * learning_rate));
 	layer->biases = add(layer->biases, multiply(layer->biases, -1 * learning_rate));
 }

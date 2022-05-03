@@ -8,13 +8,13 @@
 
 void NeuralNetworkInit();
 
-class LayerDense {
+class Layer_Dense {
     public:
-        LayerDense(int inputs, int neurons);
+        Layer_Dense(int inputs, int neurons);
         std::vector<std::vector<double>> weights;
         std::vector<double> biases;
 
-        void forward(std::vector<std::vector<double>> inputs);
+        void forward(std::vector<std::vector<double>> inputs, bool normalize=false);
         std::vector<std::vector<double>> input;
         std::vector<std::vector<double>> output;
 
@@ -78,5 +78,5 @@ class Optimizer_SGD {
         Optimizer_SGD(double learning_rate=1.0);
         double learning_rate;
 
-        void update(LayerDense* layer);
+        void update(Layer_Dense* layer);
 };

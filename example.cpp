@@ -11,14 +11,14 @@ int main() {
 
 	std::vector<double> targetOutput = { 0, 1, 1 };
 
-	LayerDense layer(3, 5);
+	Layer_Dense layer(3, 5);
 	Activation_ReLU relu;
-	LayerDense layer2(5, 5);
+	Layer_Dense layer2(5, 5);
 	Activation_ReLU relu2;
-	LayerDense layer3(5, 5);
+	Layer_Dense layer3(5, 5);
 	Activation_Softmax_Loss_CategoricalCrossEntropy activation_loss;
 
-	layer.forward(inputs);
+	layer.forward(inputs, true);
 	relu.forward(layer.output);
 	layer2.forward(relu.output);
 	relu2.forward(layer2.output);
