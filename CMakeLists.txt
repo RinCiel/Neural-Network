@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(NeuralNetwork VERSION 0.1.0)
 
-file (GLOB SRCS *.cpp *.h)
+set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR})
 
-add_executable(${PROJECT_NAME} ${SRCS})
+add_subdirectory(neural_network)
+
+add_executable(${PROJECT_NAME} test.cpp)
+
+target_link_libraries(${PROJECT_NAME} PUBLIC neural_network)
+
+install(TARGETS ${PROJECT_NAME} DESTINATION bin)
