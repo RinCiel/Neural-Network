@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.4.0)
 project(MNIST_Reader)
 
 file (GLOB DATA
@@ -9,10 +9,10 @@ file (GLOB DATA
     train-labels-idx1-ubyte
 )
 
-add_library(${PROJECT_NAME} mnist_reader.hpp)
+add_library(${PROJECT_NAME} INTERFACE)
+
+target_include_directories(${PROJECT_NAME} INTERFACE mnist_reader.hpp)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
-
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 install(FILES ${DATA} DESTINATION bin)

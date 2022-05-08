@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.4.0)
 project(NeuralNetwork VERSION 0.1.0)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -10,6 +10,10 @@ add_subdirectory(neural_network)
 add_subdirectory(mnist)
 
 add_executable(${PROJECT_NAME} example.cpp)
+
+if (MSVC)
+	set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/wd4018")
+endif()
 
 target_link_libraries(${PROJECT_NAME} PUBLIC neural_network)
 target_link_libraries(${PROJECT_NAME} PUBLIC MNIST_Reader)
