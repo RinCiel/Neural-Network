@@ -18,4 +18,4 @@ endif()
 target_link_libraries(${PROJECT_NAME} PUBLIC neural_network)
 target_link_libraries(${PROJECT_NAME} PUBLIC MNIST_Reader)
 
-install(TARGETS ${PROJECT_NAME} DESTINATION bin)
+install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION build)

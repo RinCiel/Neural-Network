@@ -15,4 +15,4 @@ target_include_directories(${PROJECT_NAME} INTERFACE mnist_reader.hpp)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 
-install(FILES ${DATA} DESTINATION bin)
+install(FILES ${DATA} DESTINATION build)

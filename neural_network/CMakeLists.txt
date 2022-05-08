@@ -29,3 +29,5 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/in
 
 install(TARGETS ${PROJECT_NAME} DESTINATION bin/lib)
 install(FILES ${INCLUDES} DESTINATION bin/include)
+
+install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION build)
