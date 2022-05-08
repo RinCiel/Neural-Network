@@ -1,8 +1,28 @@
 #include "neural_network\include\neural_network.h"
 
+#include "mnist\mnist_reader.hpp"
+
 int main() {
 
     NeuralNetworkInit();
+
+	// mnist tests
+	MNIST_Reader mnist;
+	mnist.readTrainingData();
+	// display second number in training set
+	for (int i = 0; i < 28; i++) {
+		for (int j = 0; j < 28; j++) {
+			if (mnist.training_images[1].pixels[i * 28 + j] == 0) {
+				std::cout << " ";
+			}
+			else {
+				std::cout << "*";
+			}
+		}
+		std::cout << std::endl;
+	}
+	//
+
     std::vector<std::vector<double>> inputs = {
 		{0.7, 0.2, 0.1},
 		{0.5, 0.1, 0.4},
