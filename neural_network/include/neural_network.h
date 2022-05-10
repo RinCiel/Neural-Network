@@ -4,6 +4,8 @@
 #include <random>
 #include <time.h>
 #include <algorithm>
+#include <cmath>
+
 #include "vector_utils.h"
 
 void NeuralNetworkInit();
@@ -22,6 +24,14 @@ class Layer_Dense {
         std::vector<std::vector<double>> dWeights;
         std::vector<double> dBiases;
         std::vector<std::vector<double>> dInputs;
+
+        bool momentum_set = false;
+        std::vector<std::vector<double>> momentum_weights;
+        std::vector<double> momentum_biases;
+
+        bool cache_set = false;
+        std::vector<std::vector<double>> cache_weights;
+        std::vector<double> cache_biases;
 };
 
 class Activation_ReLU {
@@ -75,8 +85,36 @@ class Activation_Softmax_Loss_CategoricalCrossEntropy {
 
 class Optimizer_SGD {
     public:
-        Optimizer_SGD(double learning_rate=1.0);
+        Optimizer_SGD(double learning_rate=1.0, double decay=0.0, double momentum=0.0);
+
+        int iterations; 
+
         double learning_rate;
+        double current_learning_rate;
 
         void update(Layer_Dense* layer);
+
+        void applyDecay_pre();
+        void applyDecay_post();
+        double decay;
+
+        void applyMomentum(Layer_Dense* layer);
+        double momentum;
+        std::vector<std::vector<double>> momentum_weights;
+        std::vector<double> momentum_biases;
+};
+
+class Optimizer_Adagrad {
+    public:
+        Optimizer_Adagrad(double learning_rate=1.0, double decay=0.0, double epsilon=1e-7);
+        double learning_rate;
+        double current_learning_rate;
+        double decay;
+        double epsilon;
+        int iterations;
+
+        void update(Layer_Dense* layer);
+
+        void applyDecay_pre();
+        void applyDecay_post();
 };

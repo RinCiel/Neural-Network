@@ -21,6 +21,24 @@ int getArgMax(std::vector<double> vec) {
 	return index;
 }
 
+// add a 1d vector and a double
+std::vector<double> add(std::vector<double> vec, double num) {
+	std::vector<double> res(vec.size());
+	for (int i = 0; i < vec.size(); i++) {
+		res[i] = vec[i] + num;
+	}
+	return res;
+}
+
+// add a 2d vector and a double
+std::vector<std::vector<double>> add(std::vector<std::vector<double>> vec, double num) {
+	std::vector<std::vector<double>> res(vec.size());
+	for (int i = 0; i < vec.size(); i++) {
+		res[i] = add(vec[i], num);
+	}
+	return res;
+}
+
 // add 2 1d vectors
 std::vector<double> add(std::vector<double> v1, std::vector<double> v2) {
 	std::vector<double> res(v1.size());
@@ -96,6 +114,15 @@ std::vector<std::vector<double>> multiply(std::vector<std::vector<double>> vec, 
 	return res;
 }
 
+// multiple 2 1d vectors
+std::vector<double> multiply(std::vector<double> v1, std::vector<double> v2) {
+	std::vector<double> res(v1.size());
+	for (int i = 0; i < v1.size(); i++) {
+		res[i] = v1[i] * v2[i];
+	}
+	return res;
+}
+
 // multiply 2 2d vectors
 std::vector<std::vector<double>> multiply(std::vector<std::vector<double>> v1, std::vector<std::vector<double>> v2) {
 	std::vector<std::vector<double>> res;
@@ -106,6 +133,15 @@ std::vector<std::vector<double>> multiply(std::vector<std::vector<double>> v1, s
 		}
 		res.push_back(row);
 		row.clear();
+	}
+	return res;
+}
+
+// divide 1d vector by 1d vector
+std::vector<double> divide(std::vector<double> v1, std::vector<double> v2) {
+	std::vector<double> res(v1.size());
+	for (int i = 0; i < v1.size(); i++) {
+		res[i] = v1[i] / v2[i];
 	}
 	return res;
 }
@@ -253,6 +289,29 @@ std::vector<std::vector<double>> diagflat(std::vector<std::vector<double>> vec) 
 		}
 	}
 	return diagflat(vec1d);
+}
+
+// square root a 1d vector
+std::vector<double> sqrt(std::vector<double> vec) {
+	std::vector<double> res;
+	for (int i = 0; i < vec.size(); i++) {
+		res.push_back(sqrt(vec[i]));
+	}
+	return res;
+}
+
+// square root a 2d vector
+std::vector<std::vector<double>> sqrt(std::vector<std::vector<double>> vec) {
+	std::vector<std::vector<double>> res;
+	std::vector<double> row;
+	for (int i = 0; i < vec.size(); i++) {
+		for (int j = 0; j < vec[i].size(); j++) {
+			row.push_back(sqrt(vec[i][j]));
+		}
+		res.push_back(row);
+		row.clear();
+	}
+	return res;
 }
 
 // print out 1d vectors

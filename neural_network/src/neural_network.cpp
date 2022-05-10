@@ -222,11 +222,74 @@ void Activation_Softmax_Loss_CategoricalCrossEntropy::backward(std::vector<std::
 	dInputs = divide(dInputs, samples);
 }
 
-Optimizer_SGD::Optimizer_SGD(double learning_rate) {
+Optimizer_SGD::Optimizer_SGD(double learning_rate, double decay, double momentum) {
+	iterations = 0;
 	this->learning_rate = learning_rate;
+	this->current_learning_rate = learning_rate;
+	this->decay = decay;
+	this->momentum = momentum;
 }
 
 void Optimizer_SGD::update(Layer_Dense* layer) {
-	layer->weights = add(layer->weights, multiply(layer->weights, -1 * learning_rate));
-	layer->biases = add(layer->biases, multiply(layer->biases, -1 * learning_rate));
+	if (momentum > 0.0) {
+		applyMomentum(layer);
+	}
+	else {
+		layer->weights = add(layer->weights, multiply(layer->dWeights, -1 * learning_rate));
+		layer->biases = add(layer->biases, multiply(layer->dBiases, -1 * learning_rate));
+	}
 }
+
+void Optimizer_SGD::applyDecay_pre() {
+	if (decay > 0.0) {
+		current_learning_rate = learning_rate * (1.0 / (1.0 + decay * iterations));
+	}
+}
+
+void Optimizer_SGD::applyDecay_post() {
+	iterations += 1;
+}
+
+void Optimizer_SGD::applyMomentum(Layer_Dense* layer) {
+	if (!layer->momentum_set) {
+		layer->momentum_weights = std::vector<std::vector<double>>(layer->weights.size(), std::vector<double>(layer->weights[0].size(), 0));
+		layer->momentum_biases = std::vector<double>(layer->biases.size(), 0);
+		layer->momentum_set = true;
+	}
+	layer->momentum_weights = add(multiply(layer->momentum_weights, momentum), multiply(layer->dWeights, -1 * current_learning_rate));
+	layer->momentum_biases = add(multiply(layer->momentum_biases, momentum), multiply(layer->dBiases, -1 * current_learning_rate));
+	layer->weights = add(layer->weights, layer->momentum_weights);
+	layer->biases = add(layer->biases, layer->momentum_biases);
+}
+
+Optimizer_Adagrad::Optimizer_Adagrad(double learning_rate, double decay, double epsilon) {
+	this->iterations = 0;
+	this->learning_rate = learning_rate;
+	this->current_learning_rate = learning_rate;
+	this->decay = decay;
+	this->epsilon = epsilon;
+}
+
+void Optimizer_Adagrad::update(Layer_Dense* layer) {
+	if (!layer->cache_set) {
+		layer->cache_weights = std::vector<std::vector<double>>(layer->weights.size(), std::vector<double>(layer->weights[0].size(), 0));
+		layer->cache_biases = std::vector<double>(layer->biases.size(), 0);
+		layer->cache_set = true;
+	}
+	layer->cache_weights = add(layer->cache_weights, multiply(layer->dWeights, layer->dWeights));
+	layer->cache_biases = add(layer->cache_biases, multiply(layer->dBiases, layer->dBiases));
+	
+	layer->weights = add(layer->weights, divide(multiply(layer->dWeights, -1 * current_learning_rate), add(sqrt(layer->cache_weights), epsilon)));
+	layer->biases = add(layer->biases, divide(multiply(layer->dBiases, -1 * current_learning_rate), add(sqrt(layer->cache_biases), epsilon)));
+}
+
+void Optimizer_Adagrad::applyDecay_pre() {
+	if (decay > 0.0) {
+		current_learning_rate = learning_rate * (1.0 / (1.0 + decay * iterations));
+	}
+}
+
+void Optimizer_Adagrad::applyDecay_post() {
+	iterations += 1;
+}
+
