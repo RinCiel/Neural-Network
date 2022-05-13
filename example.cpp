@@ -2,72 +2,69 @@
 
 #include "mnist\mnist_reader.hpp"
 
+#include <cstdio>
+
 int main() {
 
     NeuralNetworkInit();
 
-	// mnist tests
 	MNIST_Reader mnist;
 	mnist.readTrainingData();
-	// display second number in training set
-	for (int i = 0; i < 28; i++) {
-		for (int j = 0; j < 28; j++) {
-			if (mnist.training_images[1].pixels[i * 28 + j] == 0) {
-				std::cout << " ";
-			}
-			else {
-				std::cout << "*";
-			}
+	mnist.readTestData();
+	mnist.randomTrainingData(100);
+
+	// convert mnist.randomImages to inputs
+	std::vector<std::vector<double>> inputs;
+	for (int i = 0; i < mnist.randomImages.size(); i++) {
+		std::vector<double> input;
+		for (int j = 0; j < 784; j++) {
+			input.push_back(mnist.randomImages[i].pixels[j]);
 		}
-		std::cout << std::endl;
+		inputs.push_back(input);
 	}
-	//
 
-    std::vector<std::vector<double>> inputs = {
-		{0.7, 0.2, 0.1},
-		{0.5, 0.1, 0.4},
-		{0.02, 0.9, 0.08}
-	};
+	// convert mnist.randomLabels to targetOutput
+	std::vector<double> targetOutput;
+	for (int i = 0; i < mnist.randomLabels.size(); i++) {
+		targetOutput.push_back(mnist.randomLabels[i]);
+	}
 
-	std::vector<double> targetOutput = { 0, 1, 1 };
-
-	Layer_Dense layer(3, 5);
+	Layer_Dense layer(784, 16);
 	Activation_ReLU relu;
-	Layer_Dense layer2(5, 5);
+	Layer_Dense layer2(16, 16);
 	Activation_ReLU relu2;
-	Layer_Dense layer3(5, 5);
+	Layer_Dense layer3(16, 10);
 	Activation_Softmax_Loss_CategoricalCrossEntropy activation_loss;
-
-	layer.forward(inputs, true);
-	relu.forward(layer.output);
-	layer2.forward(relu.output);
-	relu2.forward(layer2.output);
-	layer3.forward(relu2.output);
-	activation_loss.forward(layer3.output, targetOutput);
-
 	Accuracy accuracy;
-	accuracy.forward(activation_loss.softmax->output, targetOutput);
+	Optimizer_Adam optimizer(0.0001, 5e-7, 1e-7, 0.9, 0.999);
 
-	std::cout << "Loss: " << activation_loss.loss->output << std::endl << "Accuracy: " << accuracy.output;
+	for (int i = 0; i < 2500; i++) {
+		layer.forward(inputs, true);
+		relu.forward(layer.output);
+		layer2.forward(relu.output);
+		relu2.forward(layer2.output);
+		layer3.forward(relu2.output);
+		activation_loss.forward(layer3.output, targetOutput);
 
-	// backpropagation
-	activation_loss.backward(activation_loss.output, targetOutput);
-	layer3.backward(activation_loss.dInputs);
-	relu2.backward(layer3.dInputs);
-	layer2.backward(relu2.dInputs);
-	relu.backward(layer2.dInputs);
-	layer.backward(relu.dInputs);
+		accuracy.forward(activation_loss.softmax->output, targetOutput);
+		std::cout << "Epoch: " << i + 1 << "|" << "Loss: " << activation_loss.loss->output << "|" << "Accuracy: " << accuracy.output << std::endl;
+		
+		// backpropagation
+		activation_loss.backward(activation_loss.output, targetOutput);
+		layer3.backward(activation_loss.dInputs);
+		relu2.backward(layer3.dInputs);
+		layer2.backward(relu2.dInputs);
+		relu.backward(layer2.dInputs);
+		layer.backward(relu.dInputs);
 
-	// print out contents of layer dWeights
-	std::cout << std::endl;
-	print(layer.dWeights);
-	std::cout << std::endl;
-	print(layer.dBiases);
+		// optimizer
+		optimizer.applyDecay_pre();
+		optimizer.update(&layer);
+		optimizer.update(&layer2);
+		optimizer.update(&layer3);
+		optimizer.applyDecay_post();
+	}
 
-	// optimizer
-	Optimizer_SGD optimizer;
-	optimizer.update(&layer);
-	optimizer.update(&layer2);
-	optimizer.update(&layer3);
+	std::getchar();
     return 0;
 }
