@@ -146,6 +146,15 @@ std::vector<double> divide(std::vector<double> v1, std::vector<double> v2) {
 	return res;
 }
 
+// divide a 1d vector by a double
+std::vector<double> divide(std::vector<double> vec, double val) {
+	std::vector<double> res(vec.size());
+	for (int i = 0; i < vec.size(); i++) {
+		res[i] = vec[i] / val;
+	}
+	return res;
+}
+
 // divide a 2d vector by a double
 std::vector<std::vector<double>> divide(std::vector<std::vector<double>> vec, double val) {
 	std::vector<std::vector<double>> res;

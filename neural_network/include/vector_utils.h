@@ -21,6 +21,7 @@ std::vector<double> multiply(std::vector<double> v1, std::vector<double> v2);
 std::vector<std::vector<double>> multiply(std::vector<std::vector<double>> v1, std::vector<std::vector<double>> v2);
 
 std::vector<double> divide(std::vector<double> v1, std::vector<double> v2);
+std::vector<double> divide(std::vector<double> vec, double val);
 std::vector<std::vector<double>> divide(std::vector<std::vector<double>> vec, double val);
 std::vector<std::vector<double>> divide(std::vector<std::vector<double>> v1, std::vector<std::vector<double>> v2);
 

@@ -293,3 +293,92 @@ void Optimizer_Adagrad::applyDecay_post() {
 	iterations += 1;
 }
 
+Optimizer_RMSProp::Optimizer_RMSProp(double learning_rate, double decay, double epsilon, double rho) {
+	this->iterations = 0;
+	this->learning_rate = learning_rate;
+	this->current_learning_rate = learning_rate;
+	this->decay = decay;
+	this->epsilon = epsilon;
+	this->rho = rho;
+}
+
+void Optimizer_RMSProp::update(Layer_Dense* layer) {
+	if (!layer->cache_set) {
+		layer->cache_weights = std::vector<std::vector<double>>(layer->weights.size(), std::vector<double>(layer->weights[0].size(), 0));
+		layer->cache_biases = std::vector<double>(layer->biases.size(), 0);
+		layer->cache_set = true;
+	}
+	// cache_weights = rho * weight_cache + (1 - rho) * weight_delta ** 2
+	layer->cache_weights = add(multiply(layer->cache_weights, rho), multiply(multiply(layer->dWeights, layer->dWeights), 1 - rho));
+	// cache_biases = rho * bias_cache + (1 - rho) * bias_delta ** 2
+	layer->cache_biases = add(multiply(layer->cache_biases, rho), multiply(multiply(layer->dBiases, layer->dBiases), 1 - rho));
+
+	// layer->weights += -1 * current_learning_rate * layer.dWeights / (sqrt(layer.cache_weights) + epsilon)
+	layer->weights = add(layer->weights, divide(multiply(layer->dWeights, -1 * current_learning_rate), add(sqrt(layer->cache_weights), epsilon)));
+	// layer->biases += -1 * current_learning_rate * layer.dBiases / (sqrt(layer.cache_biases) + epsilon)
+	layer->biases = add(layer->biases, divide(multiply(layer->dBiases, -1 * current_learning_rate), add(sqrt(layer->cache_biases), epsilon)));
+}
+
+void Optimizer_RMSProp::applyDecay_pre() {
+	if (decay > 0.0) {
+		current_learning_rate = learning_rate * (1.0 / (1.0 + decay * iterations));
+	}
+}
+
+void Optimizer_RMSProp::applyDecay_post() {
+	iterations += 1;
+}
+
+Optimizer_Adam::Optimizer_Adam(double learning_rate, double decay, double epsilon, double beta_1, double beta_2) {
+	this->iterations = 0;
+	this->learning_rate = learning_rate;
+	this->current_learning_rate = learning_rate;
+	this->decay = decay;
+	this->epsilon = epsilon;
+	this->beta_1 = beta_1;
+	this->beta_2 = beta_2;
+}
+
+void Optimizer_Adam::update(Layer_Dense* layer) {
+	if (!layer->cache_set) {
+		layer->momentum_weights = std::vector<std::vector<double>>(layer->weights.size(), std::vector<double>(layer->weights[0].size(), 0));
+		layer->cache_weights = std::vector<std::vector<double>>(layer->weights.size(), std::vector<double>(layer->weights[0].size(), 0));
+
+		layer->momentum_biases = std::vector<double>(layer->biases.size(), 0);
+		layer->cache_biases = std::vector<double>(layer->biases.size(), 0);
+	}
+	
+	// layer.momentum_weights = beta_1 * layer.momentum_weights + (1 - beta_1) * layer.dWeights
+	layer->momentum_weights = add(multiply(layer->momentum_weights, beta_1), multiply(layer->dWeights, 1 - beta_1));
+	// layer.momentum_biases = beta_1 * layer.momentum_biases + (1 - beta_1) * layer.dBiases
+	layer->momentum_biases = add(multiply(layer->momentum_biases, beta_1), multiply(layer->dBiases, 1 - beta_1));
+
+	// correct momentums
+	std::vector<std::vector<double>> momentum_weights_corrected = divide(layer->momentum_weights, 1 - pow(beta_1, iterations + 1));
+	std::vector<double> momentum_biases_corrected = divide(layer->momentum_biases, 1 - pow(beta_1, iterations + 1));
+
+	// layer.cache_weights = beta_2 * layer.cache_weights + (1 - beta_2) * layer.dWeights ** 2
+	layer->cache_weights = add(multiply(layer->cache_weights, beta_2), multiply(multiply(layer->dWeights, layer->dWeights), 1 - beta_2));
+	// layer.cache_biases = beta_2 * layer.cache_biases + (1 - beta_2) * layer.dBiases ** 2
+	layer->cache_biases = add(multiply(layer->cache_biases, beta_2), multiply(multiply(layer->dBiases, layer->dBiases), 1 - beta_2));
+
+	// correct caches
+	std::vector<std::vector<double>> cache_weights_corrected = divide(layer->cache_weights, 1 - pow(beta_2, iterations + 1));
+	std::vector<double> cache_biases_corrected = divide(layer->cache_biases, 1 - pow(beta_2, iterations + 1));
+
+	// layer.weights += -1 * current_learning_rate * momentum_weights_corrected / (sqrt(cache_weights_corrected) + epsilon)
+	layer->weights = add(layer->weights, divide(multiply(momentum_weights_corrected, -1 * current_learning_rate), add(sqrt(cache_weights_corrected), epsilon)));
+
+	// layer.biases += -1 * current_learning_rate * momentum_biases_corrected / (sqrt(cache_biases_corrected) + epsilon)
+	layer->biases = add(layer->biases, divide(multiply(momentum_biases_corrected, -1 * current_learning_rate), add(sqrt(cache_biases_corrected), epsilon)));
+}
+
+void Optimizer_Adam::applyDecay_pre() {
+	if (decay > 0.0) {
+		current_learning_rate = learning_rate * (1.0 / (1.0 + decay * iterations));
+	}
+}
+
+void Optimizer_Adam::applyDecay_post() {
+	iterations += 1;
+}

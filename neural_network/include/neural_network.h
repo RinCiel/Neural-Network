@@ -118,3 +118,34 @@ class Optimizer_Adagrad {
         void applyDecay_pre();
         void applyDecay_post();
 };
+
+class Optimizer_RMSProp {
+    public:
+        Optimizer_RMSProp(double learning_rate=0.001, double decay=0.0, double epsilon=1e-7, double rho=0.9);
+        double learning_rate;
+        double current_learning_rate;
+        double decay;
+        double epsilon;
+        double rho;
+        int iterations;
+
+        void update(Layer_Dense* layer);
+        void applyDecay_pre();
+        void applyDecay_post();
+};
+
+class Optimizer_Adam {
+    public:
+        Optimizer_Adam(double learning_rate=0.001, double decay=0.0, double epsilon=1e-7, double beta_1=0.9, double beta_2=0.999);
+        double learning_rate;
+        double current_learning_rate;
+        double decay;
+        double epsilon;
+        double beta_1;
+        double beta_2;
+        int iterations;
+
+        void update(Layer_Dense* layer);
+        void applyDecay_pre();
+        void applyDecay_post();
+};
