@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <fstream>
+#include <random>
 
 struct image {
     int pixels[784]; // images are 28 x 28 pixels
@@ -158,6 +159,25 @@ public:
                 index = 0;
                 test_images.push_back(current);
             }
+        }
+    }
+
+    std::vector<int> randomLabels;
+    std::vector<image> randomImages;
+
+    void randomTrainingData(int amount) {
+        for (int i = 0; i < amount; i++) {
+            int index = rand() % training_labels.size();
+            randomLabels.push_back(training_labels[index]);
+            randomImages.push_back(training_images[index]);
+        }
+    }
+
+    void randomTestData(int amount) {
+        for (int i = 0; i < amount; i++) {
+            int index = rand() % test_labels.size();
+            randomLabels.push_back(test_labels[index]);
+            randomImages.push_back(test_images[index]);
         }
     }
 };
