@@ -12,9 +12,13 @@ void NeuralNetworkInit();
 
 class Layer_Dense {
     public:
-        Layer_Dense(int inputs, int neurons);
+        Layer_Dense(int inputs, int neurons, double weight_reg_L1 = 0.0, double weight_reg_L2 = 0.0, double bias_reg_L1 = 0.0, double bias_reg_L2 = 0.0);
         std::vector<std::vector<double>> weights;
         std::vector<double> biases;
+        double weight_reg_L1;
+        double weight_reg_L2;
+        double bias_reg_L1;
+        double bias_reg_L2;
 
         void forward(std::vector<std::vector<double>> inputs, bool normalize=false);
         std::vector<std::vector<double>> input;
@@ -149,3 +153,5 @@ class Optimizer_Adam {
         void applyDecay_pre();
         void applyDecay_post();
 };
+
+double regularization_loss(Layer_Dense* layer);

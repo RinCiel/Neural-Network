@@ -43,5 +43,8 @@ std::vector<std::vector<double>> diagflat(std::vector<std::vector<double>> vec);
 std::vector<double> sqrt(std::vector<double> vec);
 std::vector<std::vector<double>> sqrt(std::vector<std::vector<double>> vec);
 
+std::vector<double> sign(std::vector<double> vec);
+std::vector<std::vector<double>> sign(std::vector<std::vector<double>> vec);
+
 void print(std::vector<double> vec);
 void print(std::vector<std::vector<double>> vec);

@@ -340,3 +340,36 @@ void print(std::vector<std::vector<double>> vec) {
 		std::cout << std::endl;
 	}
 }
+
+// if element in 1d vector >=0 , set to 1, else set to -1
+std::vector<double> sign(std::vector<double> vec) {
+	std::vector<double> res;
+	for (int i = 0; i < vec.size(); i++) {
+		if (vec[i] >= 0) {
+			res.push_back(1);
+		}
+		else {
+			res.push_back(-1);
+		}
+	}
+	return res;
+}
+
+// if element in 2d vector >=0 , set to 1, else set to -1
+std::vector<std::vector<double>> sign(std::vector<std::vector<double>> vec) {
+	std::vector<std::vector<double>> res;
+	std::vector<double> row;
+	for (int i = 0; i < vec.size(); i++) {
+		for (int j = 0; j < vec[i].size(); j++) {
+			if (vec[i][j] >= 0) {
+				row.push_back(1);
+			}
+			else {
+				row.push_back(-1);
+			}
+		}
+		res.push_back(row);
+		row.clear();
+	}
+	return res;
+}

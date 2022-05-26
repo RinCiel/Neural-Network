@@ -11,7 +11,7 @@ void NeuralNetworkInit() {
 	srand(time(NULL));
 }
 
-Layer_Dense::Layer_Dense(int inputs, int neurons) {
+Layer_Dense::Layer_Dense(int inputs, int neurons, double weight_reg_L1, double weight_reg_L2, double bias_reg_L1, double bias_reg_L2) {
 	// fill weights with random numbers between -1 and 1 
 	// weights size: (inputs, neurons)
 	for (int i = 0; i < inputs; i++) {
@@ -27,6 +27,12 @@ Layer_Dense::Layer_Dense(int inputs, int neurons) {
 	for (int i = 0; i < neurons; i++) {
 		biases.push_back(0);
 	}
+
+	// regularizer
+	this->weight_reg_L1 = weight_reg_L1;
+	this->weight_reg_L2 = weight_reg_L2;
+	this->bias_reg_L1 = bias_reg_L1;
+	this->bias_reg_L2 = bias_reg_L2;
 }
 
 void Layer_Dense::forward(std::vector<std::vector<double>> inputs, bool normalize) {
@@ -55,6 +61,27 @@ void Layer_Dense::forward(std::vector<std::vector<double>> inputs, bool normaliz
 void Layer_Dense::backward(std::vector<std::vector<double>> inputs) {
 	dWeights = dot(transpose(input), inputs);
 	dBiases = sumVertical(inputs);
+
+	if (this->weight_reg_L1 > 0.0) {
+		std::vector<std::vector<double>> sign_weights = sign(weights);
+		this->dWeights = add(this->dWeights, multiply(sign_weights, this->weight_reg_L1));
+	}
+
+	if (this->weight_reg_L2 > 0.0) {
+		// dWeights += 2 * weight_reg_l2 * weights
+		this->dWeights = add(this->dWeights, multiply(multiply(this->weights, this->weight_reg_L2), 2));
+	}
+
+	if (this->bias_reg_L1 > 0.0) {
+		std::vector<double> sign_biases = sign(biases);
+		this->dBiases = add(this->dBiases, multiply(sign_biases, this->bias_reg_L1));
+	}
+
+	if (this->bias_reg_L2 > 0.0) {
+		// dBiases += 2 * bias_reg_l2 * biases
+		this->dBiases = add(this->dBiases, multiply(multiply(this->biases, this->bias_reg_L2), 2));
+	}
+
 	dInputs = dot(inputs, transpose(weights));
 }
 
@@ -381,4 +408,38 @@ void Optimizer_Adam::applyDecay_pre() {
 
 void Optimizer_Adam::applyDecay_post() {
 	iterations += 1;
+}
+
+double regularization_loss(Layer_Dense* layer) {
+	double loss = 0;
+	
+	if (layer->weight_reg_L1 > 0.0) {
+		for (int i = 0; i < layer->weights.size(); i++) {
+			for (int j = 0; j < layer->weights[i].size(); j++) {
+				loss += layer->weight_reg_L1 * fabs(layer->weights[i][j]);
+			}
+		}
+	}
+
+	if (layer->weight_reg_L2 > 0.0) {
+		for (int i = 0; i < layer->weights.size(); i++) {
+			for (int j = 0; j < layer->weights[i].size(); j++) {
+				loss += layer->weight_reg_L2 * layer->weights[i][j] * layer->weights[i][j];
+			}
+		}
+	}
+
+	if (layer->bias_reg_L1 > 0.0) {
+		for (int i = 0; i < layer->biases.size(); i++) {
+			loss += layer->bias_reg_L1 * fabs(layer->biases[i]);
+		}
+	}
+
+	if (layer->bias_reg_L2 > 0.0) {
+		for (int i = 0; i < layer->biases.size(); i++) {
+			loss += layer->bias_reg_L2 * layer->biases[i] * layer->biases[i];
+		}
+	}
+
+	return loss;
 }
